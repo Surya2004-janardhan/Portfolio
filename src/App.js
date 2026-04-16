@@ -1,20 +1,20 @@
-import './App.css';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Home from './pages/Home';
-import Projects from './pages/Projects';
-import Experience from './pages/Experience';
-import Youtube from './pages/Youtube';
-import Header from './components/Header';
-import Footer from './components/Footer';
-import Card from './components/Card';
-import SkillsAndTools from './pages/SkillsAndTools';
-import Contact from './pages/Contact';
-import Education from './pages/Education';
-import Testimonials from './pages/Testimonials';
-import Button from './pages/Button';
-import GithubCalendar from './pages/GithubCalendar';
-import Resume from './pages/Resume';
-import About from './pages/About';
+import "./App.css";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Home from "./pages/Home";
+import Projects from "./pages/Projects";
+import Experience from "./pages/Experience";
+import Youtube from "./pages/Youtube";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
+import Card from "./components/Card";
+import SkillsAndTools from "./pages/SkillsAndTools";
+import Contact from "./pages/Contact";
+import Education from "./pages/Education";
+import Testimonials from "./pages/Testimonials";
+import Button from "./pages/Button";
+import GithubCalendar from "./pages/GithubCalendar";
+import Resume from "./pages/Resume";
+import About from "./pages/About";
 
 function App() {
   return (
@@ -40,10 +40,8 @@ function App() {
             <Route path="/testimonials" element={<Testimonials />} />
             <Route path="/resume" element={<Resume />} />
             <Route path="/about" element={<About />} />
-
           </Routes>
         </div>
-        
       </div>
 
       <Footer />
