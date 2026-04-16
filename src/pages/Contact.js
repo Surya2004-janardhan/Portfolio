@@ -10,7 +10,8 @@ const Contact = () => {
     message: "",
   });
   const [isSending, setIsSending] = useState(false);
-  const contactEmail = "chintalajanardhan2004@gmail.com";
+  const contactEmail =
+    process.env.REACT_APP_CONTACT_EMAIL || "chintalajanardhan2004@gmail.com";
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -38,19 +39,31 @@ const Contact = () => {
       message: formData.message.trim(),
     };
 
+    if (
+      !cleanedFormData.name ||
+      !cleanedFormData.email ||
+      !cleanedFormData.mobile ||
+      !cleanedFormData.message
+    ) {
+      alert(
+        "All fields are required and cannot be empty or contain only spaces."
+      );
+      setIsSending(false);
+      return;
+    }
+
     const templateParams = {
       ...cleanedFormData,
       from_name: cleanedFormData.name,
       from_email: cleanedFormData.email,
-      user_name: cleanedFormData.name,
-      user_email: cleanedFormData.email,
       reply_to: cleanedFormData.email,
       phone: cleanedFormData.mobile,
-      phone_number: cleanedFormData.mobile,
     };
 
     if (!serviceID || !templateID || !publicKey) {
-      alert("Email service is not configured. Opening your email app instead.");
+      alert(
+        "Unable to send automatically. Opening your email client to compose the message."
+      );
       openMailFallback(cleanedFormData);
       setIsSending(false);
       return;
