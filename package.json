@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Surya Janardhan Chintala - AI Engineer & Full Stack Developer Portfolio. Showcasing AI agents, machine learning projects, and scalable web applications.",
   "author": "Surya Janardhan Chintala",
-  "homepage": "https://surya-janardhan.netlify.app",
+  "homepage": "https://Surya2004-janardhan.github.io/Portfolio",
   "private": true,
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
@@ -30,7 +30,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
@@ -52,6 +54,7 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.21",
+    "gh-pages": "^6.3.0",
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17"
   }
