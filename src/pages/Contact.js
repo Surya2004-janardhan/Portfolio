@@ -10,28 +10,62 @@ const Contact = () => {
     message: "",
   });
   const [isSending, setIsSending] = useState(false);
+  const contactEmail = "chintalajanardhan2004@gmail.com";
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const openMailFallback = (data) => {
+    const subject = `Portfolio Contact from ${data.name || "Visitor"}`;
+    const body = `Name: ${data.name}\nEmail: ${data.email}\nMobile: ${data.mobile}\n\nMessage:\n${data.message}`;
+    const mailtoLink = `mailto:${contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailtoLink;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (isSending) return;
     setIsSending(true);
 
     const serviceID = process.env.REACT_APP_EMAILJS_SERVICE_ID;
     const templateID = process.env.REACT_APP_EMAILJS_TEMPLATE_ID;
     const publicKey = process.env.REACT_APP_EMAILJS_PUBLIC_KEY;
+    const cleanedFormData = {
+      name: formData.name.trim(),
+      email: formData.email.trim(),
+      mobile: formData.mobile.trim(),
+      message: formData.message.trim(),
+    };
+
+    const templateParams = {
+      ...cleanedFormData,
+      from_name: cleanedFormData.name,
+      from_email: cleanedFormData.email,
+      user_name: cleanedFormData.name,
+      user_email: cleanedFormData.email,
+      reply_to: cleanedFormData.email,
+      phone: cleanedFormData.mobile,
+      phone_number: cleanedFormData.mobile,
+    };
+
+    if (!serviceID || !templateID || !publicKey) {
+      alert("Email service is not configured. Opening your email app instead.");
+      openMailFallback(cleanedFormData);
+      setIsSending(false);
+      return;
+    }
 
     emailjs
-      .send(serviceID, templateID, formData, publicKey)
+      .send(serviceID, templateID, templateParams, publicKey)
       .then((response) => {
         alert("Message Sent Successfully! 🚀");
         setFormData({ name: "", email: "", mobile: "", message: "" });
       })
       .catch((error) => {
         console.error("Error sending email:", error);
-        alert("Failed to send message, please try again.");
+        alert("Failed to send automatically. Opening your email app instead.");
+        openMailFallback(cleanedFormData);
       })
       .finally(() => setIsSending(false));
   };
@@ -59,7 +93,7 @@ const Contact = () => {
           <div className="bg-[#1a1a1a] border border-white/10 p-6 rounded-3xl transition-all duration-500 hover:border-primary/40">
             <h3 className="text-primary font-semibold text-lg mb-2">Email</h3>
             <p className="text-white/90 break-all font-medium">
-              chintalajanardhan2004@gmail.com
+              {contactEmail}
             </p>
           </div>
           <div className="bg-[#1a1a1a] border border-white/10 p-6 rounded-3xl transition-all duration-500 hover:border-primary/40">
