@@ -48,8 +48,13 @@ const Contact = () => {
       }
     );
 
-    const result = await response.json().catch(() => ({}));
-    if (!response.ok || result.success === false || result.success === "false") {
+    const result = await response.json().catch((parseError) => {
+      console.error("Unable to parse FormSubmit response:", parseError);
+      return {};
+    });
+    const submissionRejected =
+      result.success === false || String(result.success).toLowerCase() === "false";
+    if (!response.ok || submissionRejected) {
       throw new Error(result.message || "FormSubmit request failed");
     }
   };
