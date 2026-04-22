@@ -2,6 +2,10 @@ import React, { useState } from "react";
 import emailjs from "@emailjs/browser";
 import { FaPaperPlane } from "react-icons/fa";
 
+const SUCCESS_MESSAGE = "Message Sent Successfully! 🚀";
+const FALLBACK_EMAIL_MESSAGE =
+  "Automatic send failed. Opening your email app so you can send directly.";
+
 const Contact = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -45,7 +49,7 @@ const Contact = () => {
     );
 
     const result = await response.json().catch(() => ({}));
-    if (!response.ok || result.success === "false") {
+    if (!response.ok || result.success === false || result.success === "false") {
       throw new Error(result.message || "FormSubmit request failed");
     }
   };
@@ -95,26 +99,22 @@ const Contact = () => {
         await sendViaFormSubmit(cleanedFormData);
       }
 
-      alert("Message Sent Successfully! 🚀");
+      alert(SUCCESS_MESSAGE);
       setFormData({ name: "", email: "", mobile: "", message: "" });
     } catch (primaryError) {
       console.error("Primary contact send failed:", primaryError);
       if (!formSubmitAttempted) {
         try {
           await sendViaFormSubmit(cleanedFormData);
-          alert("Message Sent Successfully! 🚀");
+          alert(SUCCESS_MESSAGE);
           setFormData({ name: "", email: "", mobile: "", message: "" });
         } catch (secondaryError) {
           console.error("Fallback contact send failed:", secondaryError);
-          alert(
-            "Automatic send failed. Opening your email app so you can send directly."
-          );
+          alert(FALLBACK_EMAIL_MESSAGE);
           openMailFallback(cleanedFormData);
         }
       } else {
-        alert(
-          "Automatic send failed. Opening your email app so you can send directly."
-        );
+        alert(FALLBACK_EMAIL_MESSAGE);
         openMailFallback(cleanedFormData);
       }
     } finally {
