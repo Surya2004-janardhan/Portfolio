@@ -16,6 +16,8 @@ const Contact = () => {
   const [isSending, setIsSending] = useState(false);
   const contactEmail =
     process.env.REACT_APP_CONTACT_EMAIL || "chintalajanardhan2004@gmail.com";
+  const resetForm = () =>
+    setFormData({ name: "", email: "", mobile: "", message: "" });
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -50,10 +52,10 @@ const Contact = () => {
 
     const result = await response.json().catch((parseError) => {
       console.error("Unable to parse FormSubmit response:", parseError);
-      return {};
+      throw new Error("Received an invalid response from FormSubmit.");
     });
     const submissionRejected =
-      result.success === false || String(result.success).toLowerCase() === "false";
+      result.success === false || result.success === "false";
     if (!response.ok || submissionRejected) {
       throw new Error(result.message || "FormSubmit request failed");
     }
@@ -105,14 +107,14 @@ const Contact = () => {
       }
 
       alert(SUCCESS_MESSAGE);
-      setFormData({ name: "", email: "", mobile: "", message: "" });
+      resetForm();
     } catch (primaryError) {
       console.error("Primary contact send failed:", primaryError);
       if (!formSubmitAttempted) {
         try {
           await sendViaFormSubmit(cleanedFormData);
           alert(SUCCESS_MESSAGE);
-          setFormData({ name: "", email: "", mobile: "", message: "" });
+          resetForm();
         } catch (secondaryError) {
           console.error("Fallback contact send failed:", secondaryError);
           alert(FALLBACK_EMAIL_MESSAGE);
