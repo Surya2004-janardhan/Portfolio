@@ -24,7 +24,33 @@ const Contact = () => {
     window.location.href = mailtoLink;
   };
 
-  const handleSubmit = (e) => {
+  const sendViaFormSubmit = async (data) => {
+    const response = await fetch(
+      `https://formsubmit.co/ajax/${encodeURIComponent(contactEmail)}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          mobile: data.mobile,
+          message: data.message,
+          _subject: `Portfolio Contact from ${data.name || "Visitor"}`,
+          _template: "table",
+        }),
+      }
+    );
+
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok || result.success === "false") {
+      throw new Error(result.message || "FormSubmit request failed");
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (isSending) return;
     setIsSending(true);
@@ -60,27 +86,40 @@ const Contact = () => {
       phone: cleanedFormData.mobile,
     };
 
-    if (!serviceID || !templateID || !publicKey) {
-      alert(
-        "Unable to send automatically. Opening your email client to compose the message."
-      );
-      openMailFallback(cleanedFormData);
-      setIsSending(false);
-      return;
-    }
+    let formSubmitAttempted = false;
+    try {
+      if (serviceID && templateID && publicKey) {
+        await emailjs.send(serviceID, templateID, templateParams, publicKey);
+      } else {
+        formSubmitAttempted = true;
+        await sendViaFormSubmit(cleanedFormData);
+      }
 
-    emailjs
-      .send(serviceID, templateID, templateParams, publicKey)
-      .then((response) => {
-        alert("Message Sent Successfully! 🚀");
-        setFormData({ name: "", email: "", mobile: "", message: "" });
-      })
-      .catch((error) => {
-        console.error("Error sending email:", error);
-        alert("Failed to send automatically. Opening your email app instead.");
+      alert("Message Sent Successfully! 🚀");
+      setFormData({ name: "", email: "", mobile: "", message: "" });
+    } catch (primaryError) {
+      console.error("Primary contact send failed:", primaryError);
+      if (!formSubmitAttempted) {
+        try {
+          await sendViaFormSubmit(cleanedFormData);
+          alert("Message Sent Successfully! 🚀");
+          setFormData({ name: "", email: "", mobile: "", message: "" });
+        } catch (secondaryError) {
+          console.error("Fallback contact send failed:", secondaryError);
+          alert(
+            "Automatic send failed. Opening your email app so you can send directly."
+          );
+          openMailFallback(cleanedFormData);
+        }
+      } else {
+        alert(
+          "Automatic send failed. Opening your email app so you can send directly."
+        );
         openMailFallback(cleanedFormData);
-      })
-      .finally(() => setIsSending(false));
+      }
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (
