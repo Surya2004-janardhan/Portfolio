@@ -18,6 +18,10 @@ const Contact = () => {
     process.env.REACT_APP_CONTACT_EMAIL || "chintalajanardhan2004@gmail.com";
   const resetForm = () =>
     setFormData({ name: "", email: "", mobile: "", message: "" });
+  const handleSuccess = () => {
+    alert(SUCCESS_MESSAGE);
+    resetForm();
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -52,12 +56,25 @@ const Contact = () => {
 
     const result = await response.json().catch((parseError) => {
       console.error("Unable to parse FormSubmit response:", parseError);
-      throw new Error("Received an invalid response from FormSubmit.");
+      throw new Error(
+        `Received an invalid response from FormSubmit (status ${response.status}).`
+      );
     });
     const submissionRejected =
       result.success === false || result.success === "false";
     if (!response.ok || submissionRejected) {
       throw new Error(result.message || "FormSubmit request failed");
+    }
+  };
+
+  const tryFormSubmitThenFallback = async (data) => {
+    try {
+      await sendViaFormSubmit(data);
+      handleSuccess();
+    } catch (secondaryError) {
+      console.error("Fallback contact send failed:", secondaryError);
+      alert(FALLBACK_EMAIL_MESSAGE);
+      openMailFallback(data);
     }
   };
 
@@ -97,33 +114,16 @@ const Contact = () => {
       phone: cleanedFormData.mobile,
     };
 
-    let formSubmitAttempted = false;
     try {
       if (serviceID && templateID && publicKey) {
         await emailjs.send(serviceID, templateID, templateParams, publicKey);
+        handleSuccess();
       } else {
-        formSubmitAttempted = true;
-        await sendViaFormSubmit(cleanedFormData);
+        await tryFormSubmitThenFallback(cleanedFormData);
       }
-
-      alert(SUCCESS_MESSAGE);
-      resetForm();
     } catch (primaryError) {
       console.error("Primary contact send failed:", primaryError);
-      if (!formSubmitAttempted) {
-        try {
-          await sendViaFormSubmit(cleanedFormData);
-          alert(SUCCESS_MESSAGE);
-          resetForm();
-        } catch (secondaryError) {
-          console.error("Fallback contact send failed:", secondaryError);
-          alert(FALLBACK_EMAIL_MESSAGE);
-          openMailFallback(cleanedFormData);
-        }
-      } else {
-        alert(FALLBACK_EMAIL_MESSAGE);
-        openMailFallback(cleanedFormData);
-      }
+      await tryFormSubmitThenFallback(cleanedFormData);
     } finally {
       setIsSending(false);
     }
