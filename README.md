@@ -49,3 +49,11 @@ npm start
 
 Built with React. Powered by coffee. Open source at heart.
 
+## Contact Form Delivery
+
+- Primary delivery uses EmailJS when these env vars are configured:
+  - `REACT_APP_EMAILJS_SERVICE_ID`
+  - `REACT_APP_EMAILJS_TEMPLATE_ID`
+  - `REACT_APP_EMAILJS_PUBLIC_KEY`
+- If EmailJS is unavailable/fails, it falls back to FormSubmit and sends to `chintalajanardhan2004@gmail.com`.
+- If both automatic options fail, it opens the user mail client with a prefilled message as the final fallback.
